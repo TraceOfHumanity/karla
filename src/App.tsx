@@ -1,16 +1,18 @@
 import * as d3 from "d3";
 import { useEffect, useRef, useState } from "react";
 
+interface WorkoutData {
+  workoutDate: string;
+  workoutName: string;
+  workoutDuration: number;
+}
+
 interface HeatMapProps {
-  data: number[];
+  data: WorkoutData[];
 }
 
 function HeatMap({ data }: HeatMapProps) {
   const heatMapRef = useRef<HTMLDivElement>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
-  const dateRef = useRef<HTMLDivElement>(null);
-  const workoutNameRef = useRef<HTMLDivElement>(null);
-  const workoutDurationRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(600);
 
   const columns = 50; // 50 тижнів
@@ -20,11 +22,11 @@ function HeatMap({ data }: HeatMapProps) {
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   // Заповнення масиву нулями, якщо значень менше 350
-  const filledData = [...Array(totalCells - data.length).fill(0), ...data];
+  const filledData = [...Array(totalCells - data.length).fill(0), ...data.map(item => item.workoutDuration)];
 
   useEffect(() => {
     const updateWidth = () => {
-      if (heatMapRef.current && tooltipRef.current) {
+      if (heatMapRef.current) {
         setContainerWidth(heatMapRef.current.clientWidth - 40); // Враховуємо місце для міток
       }
     };
@@ -35,7 +37,7 @@ function HeatMap({ data }: HeatMapProps) {
   }, []);
 
   useEffect(() => {
-    if (heatMapRef.current && tooltipRef.current) {
+    if (heatMapRef.current) {
       d3.select(heatMapRef.current).select("svg").remove();
 
       const boxSize = Math.min(Math.floor(containerWidth / columns)); // Обмеження розміру клітинок
@@ -75,17 +77,20 @@ function HeatMap({ data }: HeatMapProps) {
         .attr("x", (_, index) => boxSize * Math.floor(index / rows)) // Колонки йдуть по X
         .attr("y", (_, index) => boxSize * (index % rows)) // Рядки йдуть по Y
         .attr("fill", colorScale)
-        .attr("stroke", "#999");
+        .attr("stroke", "#999")
+        .on("mouseover", (event, datum) => {
+          console.log(datum)
+
+
+        })
+        .on("mouseout", () => {
+
+        })
     }
   }, [filledData, containerWidth]);
 
   return <>
-  <div ref={heatMapRef} style={{ width: "100%", height: "auto", overflowX: "hidden" }}></div>;
-  <div ref={tooltipRef}>
-    <div ref={dateRef}></div>
-    <div ref={workoutNameRef}></div>
-    <div ref={workoutDurationRef}></div>
-  </div>
+    <div ref={heatMapRef} style={{ width: "100%", height: "auto", overflowX: "hidden" }}></div>;
   </>
 }
 

@@ -1,25 +1,42 @@
 [
-  600,
-  900,
-  1200,
-  1500,
-  1800,
-  2100,
-  2400,
-  1200,
-  1500,
-  1800,
-  2100,
-  2400,
-  1200,
-  1500,
-  1800,
-  2100,
-  2400,
-  1200,
-  1500,
-  1800,
-  600,
-  2000
-
+  {
+    "workoutDate": "2024-01-01T00:00:00",
+    "workoutName": "Workout 1",
+    "workoutDuration": 30
+  },
+  {
+    "workoutDate": "2024-01-02T00:00:00",
+    "workoutName": "Workout 2",
+    "workoutDuration": 45
+  },
+  {
+    "workoutDate": "2024-01-03T00:00:00",
+    "workoutName": "Workout 3",
+    "workoutDuration": 60
+  },
+  {
+    "workoutDate": "2024-01-04T00:00:00",
+    "workoutName": "Workout 4",
+    "workoutDuration": 75
+  },
+  {
+    "workoutDate": "2024-01-05T00:00:00",
+    "workoutName": "Workout 5",
+    "workoutDuration": 90
+  },
+  {
+    "workoutDate": "2024-01-06T00:00:00",
+    "workoutName": "Workout 6",
+    "workoutDuration": 105
+  },
+  {
+    "workoutDate": "2024-01-07T00:00:00",
+    "workoutName": "Workout 7",
+    "workoutDuration": 120
+  },
+  {
+    "workoutDate": "2024-01-08T00:00:00",
+    "workoutName": "Workout 8",
+    "workoutDuration": 135
+  }
 ]
