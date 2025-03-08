@@ -13,6 +13,8 @@ function HeatMap({ data }: HeatMapProps) {
   const rows = 7; // 7 днів у тижні
   const totalCells = columns * rows; // 350 клітинок
 
+  const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
   // Заповнення масиву нулями, якщо значень менше 350
   const filledData = [...Array(totalCells - data.length).fill(0), ...data];
 
@@ -33,7 +35,7 @@ function HeatMap({ data }: HeatMapProps) {
       d3.select(heatMapRef.current).select("svg").remove();
 
       const boxSize = Math.floor(containerWidth / columns); // Динамічний розмір клітинки
-      const width = boxSize * columns;
+      const width = boxSize * columns + 30; // Додаємо місце для міток
       const height = boxSize * rows;
 
       const colorScale = d3
@@ -47,9 +49,20 @@ function HeatMap({ data }: HeatMapProps) {
         .attr("width", width)
         .attr("height", height);
 
+      // Додаємо мітки днів тижня
+      svg.selectAll("text")
+        .data(dayLabels)
+        .join("text")
+        .attr("x", 5)
+        .attr("y", (_, index) => boxSize * index + boxSize / 2)
+        .attr("dy", "0.35em")
+        .attr("font-size", "12px")
+        .attr("text-anchor", "start")
+        .text(d => d);
+
       svg
         .append("g")
-        .attr("transform", "translate(2, 2)")
+        .attr("transform", "translate(30, 0)")
         .selectAll("rect")
         .data(filledData)
         .join("rect")
