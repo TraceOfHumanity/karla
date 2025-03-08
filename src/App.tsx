@@ -1,52 +1,68 @@
 import * as d3 from "d3";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-interface AppProps {
+interface HeatMapProps {
   data: number[];
 }
 
-function App({ data }: AppProps) {
+function HeatMap({ data }: HeatMapProps) {
   const heatMapRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(600);
 
-  const drawHeatMap = async () => {
-    console.log(data);
-    if (heatMapRef.current) {
-      const heatMap = d3.select(heatMapRef.current);
-      console.log(heatMap);
+  const columns = 50; // 50 тижнів
+  const rows = 7; // 7 днів у тижні
+  const totalCells = columns * rows; // 350 клітинок
 
-      const dimensions = {
-        window: 600,
-        height: 150,
-      }
-
-      const boxSize = 30;
-
-      const svg = heatMap.append("svg")
-        .attr("width", dimensions.window)
-        .attr("height", dimensions.height)
-        // .attr("viewBox", `0 0 ${dimensions.window} ${dimensions.height}`)
-        // .attr("preserveAspectRatio", "xMidYMid meet")
-
-      svg.append("g")
-        .attr("transform", `translate(2, 2)`)
-        .attr("stroke", "black")
-        .attr("fill", "#ddd")
-        .selectAll("rect")
-        .data(data)
-        .join("rect")
-        .attr("width", boxSize - 3)
-        .attr("height", boxSize - 3)
-        .attr("x", (d, index) => boxSize * (index % 10))
-        .attr("y", (d, index) => boxSize * Math.floor(index / 10))
-    }
-  }
+  // Заповнення масиву нулями, якщо значень менше 350
+  const filledData = [...Array(totalCells - data.length).fill(0), ...data];
 
   useEffect(() => {
-    drawHeatMap();
-  }, [])
-  return (
-    <div ref={heatMapRef}></div>
-  )
+    const updateWidth = () => {
+      if (heatMapRef.current) {
+        setContainerWidth(heatMapRef.current.clientWidth);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
+
+  useEffect(() => {
+    if (heatMapRef.current) {
+      d3.select(heatMapRef.current).select("svg").remove();
+
+      const boxSize = Math.floor(containerWidth / columns); // Динамічний розмір клітинки
+      const width = boxSize * columns;
+      const height = boxSize * rows;
+
+      const colorScale = d3
+        .scaleLinear<string, number>()
+        .domain([d3.min(filledData) || 0, d3.max(filledData) || 1])
+        .range(["#ddd", "green"]);
+
+      const svg = d3
+        .select(heatMapRef.current)
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      svg
+        .append("g")
+        .attr("transform", "translate(2, 2)")
+        .selectAll("rect")
+        .data(filledData)
+        .join("rect")
+        .attr("width", boxSize - 2)
+        .attr("height", boxSize - 2)
+        .attr("x", (_, index) => boxSize * (index % columns))
+        .attr("y", (_, index) => boxSize * Math.floor(index / columns))
+        .attr("fill", colorScale)
+        .attr("stroke", "#999");
+    }
+  }, [filledData, containerWidth]);
+
+  return <div ref={heatMapRef} style={{ width: "100%", height: "auto" }}></div>;
 }
 
-export default App
+export default HeatMap;
