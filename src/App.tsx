@@ -55,8 +55,8 @@ function HeatMap({ data }: HeatMapProps) {
         .join("rect")
         .attr("width", boxSize - 2)
         .attr("height", boxSize - 2)
-        .attr("x", (_, index) => boxSize * (index % columns))
-        .attr("y", (_, index) => boxSize * Math.floor(index / columns))
+        .attr("x", (_, index) => boxSize * Math.floor(index / rows)) // Колонки йдуть по X
+        .attr("y", (_, index) => boxSize * (index % rows)) // Рядки йдуть по Y
         .attr("fill", colorScale)
         .attr("stroke", "#999");
     }
