@@ -7,6 +7,10 @@ interface HeatMapProps {
 
 function HeatMap({ data }: HeatMapProps) {
   const heatMapRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const dateRef = useRef<HTMLDivElement>(null);
+  const workoutNameRef = useRef<HTMLDivElement>(null);
+  const workoutDurationRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(600);
 
   const columns = 50; // 50 тижнів
@@ -20,7 +24,7 @@ function HeatMap({ data }: HeatMapProps) {
 
   useEffect(() => {
     const updateWidth = () => {
-      if (heatMapRef.current) {
+      if (heatMapRef.current && tooltipRef.current) {
         setContainerWidth(heatMapRef.current.clientWidth - 40); // Враховуємо місце для міток
       }
     };
@@ -31,7 +35,7 @@ function HeatMap({ data }: HeatMapProps) {
   }, []);
 
   useEffect(() => {
-    if (heatMapRef.current) {
+    if (heatMapRef.current && tooltipRef.current) {
       d3.select(heatMapRef.current).select("svg").remove();
 
       const boxSize = Math.min(Math.floor(containerWidth / columns)); // Обмеження розміру клітинок
@@ -75,7 +79,14 @@ function HeatMap({ data }: HeatMapProps) {
     }
   }, [filledData, containerWidth]);
 
-  return <div ref={heatMapRef} style={{ width: "100%", height: "auto", overflowX: "hidden" }}></div>;
+  return <>
+  <div ref={heatMapRef} style={{ width: "100%", height: "auto", overflowX: "hidden" }}></div>;
+  <div ref={tooltipRef}>
+    <div ref={dateRef}></div>
+    <div ref={workoutNameRef}></div>
+    <div ref={workoutDurationRef}></div>
+  </div>
+  </>
 }
 
 export default HeatMap;
