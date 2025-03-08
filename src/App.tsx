@@ -21,7 +21,7 @@ function HeatMap({ data }: HeatMapProps) {
   useEffect(() => {
     const updateWidth = () => {
       if (heatMapRef.current) {
-        setContainerWidth(heatMapRef.current.clientWidth - 30); // Враховуємо місце для міток
+        setContainerWidth(heatMapRef.current.clientWidth - 40); // Враховуємо місце для міток
       }
     };
 
@@ -35,7 +35,7 @@ function HeatMap({ data }: HeatMapProps) {
       d3.select(heatMapRef.current).select("svg").remove();
 
       const boxSize = Math.min(Math.floor(containerWidth / columns)); // Обмеження розміру клітинок
-      const width = boxSize * columns + 30; // Додаємо місце для міток
+      const width = boxSize * columns + 40; // Додаємо місце для міток
       const height = boxSize * rows;
 
       const colorScale = d3
@@ -62,7 +62,7 @@ function HeatMap({ data }: HeatMapProps) {
 
       svg
         .append("g")
-        .attr("transform", "translate(30, 0)")
+        .attr("transform", "translate(40, 0)")
         .selectAll("rect")
         .data(filledData)
         .join("rect")
