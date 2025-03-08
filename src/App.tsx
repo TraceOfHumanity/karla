@@ -21,7 +21,7 @@ function HeatMap({ data }: HeatMapProps) {
   useEffect(() => {
     const updateWidth = () => {
       if (heatMapRef.current) {
-        setContainerWidth(heatMapRef.current.clientWidth);
+        setContainerWidth(heatMapRef.current.clientWidth - 30); // Враховуємо місце для міток
       }
     };
 
@@ -34,7 +34,7 @@ function HeatMap({ data }: HeatMapProps) {
     if (heatMapRef.current) {
       d3.select(heatMapRef.current).select("svg").remove();
 
-      const boxSize = Math.floor(containerWidth / columns); // Динамічний розмір клітинки
+      const boxSize = Math.min(Math.floor(containerWidth / columns)); // Обмеження розміру клітинок
       const width = boxSize * columns + 30; // Додаємо місце для міток
       const height = boxSize * rows;
 
@@ -75,7 +75,7 @@ function HeatMap({ data }: HeatMapProps) {
     }
   }, [filledData, containerWidth]);
 
-  return <div ref={heatMapRef} style={{ width: "100%", height: "auto" }}></div>;
+  return <div ref={heatMapRef} style={{ width: "100%", height: "auto", overflowX: "hidden" }}></div>;
 }
 
 export default HeatMap;
