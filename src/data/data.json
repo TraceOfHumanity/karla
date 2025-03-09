@@ -38,5 +38,10 @@
     "workoutDate": "2024-01-08T00:00:00",
     "workoutName": "Workout 8",
     "workoutDuration": 135
+  },
+  {
+    "workoutDate": "2024-01-08T00:00:00",
+    "workoutName": "Workout 8",
+    "workoutDuration": 135
   }
 ]
