@@ -11,35 +11,29 @@ interface HeatMapProps {
   data: WorkoutData[];
 }
 
+function getWeekOfYear(date: Date): number {
+  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+  return Math.ceil(((date.getTime() - firstDayOfYear.getTime()) / 86400000 + firstDayOfYear.getDay() + 1) / 7);
+}
+
 function HeatMap({ data }: HeatMapProps) {
   const heatMapRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(600);
 
-  const columns = 50; // 50 тижнів
+  const columns = 52; // 54 тижнів
   const rows = 7; // 7 днів у тижні
-  const totalCells = columns * rows; // 350 клітинок
+  const totalCells = columns * rows; // 364 клітинок
 
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  // Сумування workoutDuration для однакових дат
-  const aggregatedData = data.reduce((acc, cur) => {
-    const dateKey = new Date(cur.workoutDate).toDateString();
-    acc.set(dateKey, (acc.get(dateKey) || 0) + cur.workoutDuration);
+  // Заповнення масиву нулями, якщо значень менше 350
+  const filledData = data.reduce((acc, item) => {
+    const index = new Date(item.workoutDate).getDay() + (getWeekOfYear(new Date(item.workoutDate)) - 1) * 7;
+    acc[index] = (acc[index] || 0) + item.workoutDuration;
     return acc;
-  }, new Map<string, number>());
+  }, Array(totalCells).fill(0));
 
-  // Генеруємо порожній масив на 350 значень
-  const today = new Date();
-// Генеруємо масив останніх 350 днів
-const filledData = Array.from({ length: totalCells }, (_, i) => {
-  const date = new Date(today);
-  date.setDate(today.getDate() - (totalCells - 1 - i)); // Віднімаємо `i` днів від сьогодні
-  date.setHours(0, 0, 0, 0); // Вирівнюємо час, щоб уникнути проблем з порівнянням дат
-  return aggregatedData.get(date.toDateString()) || 0;
-});
-
-
-  console.log("Filled Data:", filledData); // Перевірка коректності даних
+  console.log(filledData)
 
   useEffect(() => {
     const updateWidth = () => {
@@ -56,33 +50,24 @@ const filledData = Array.from({ length: totalCells }, (_, i) => {
   useEffect(() => {
     if (heatMapRef.current) {
       d3.select(heatMapRef.current).select("svg").remove();
-  
+
       const boxSize = Math.min(Math.floor(containerWidth / columns)); // Обмеження розміру клітинок
       const width = boxSize * columns + 40; // Додаємо місце для міток
       const height = boxSize * rows;
-  
-      const minValue = d3.min(filledData) ?? 0;
-      let maxValue = d3.max(filledData) ?? 1;
-  
-      // Запобігаємо ситуації, коли minValue === maxValue
-      if (minValue === maxValue) {
-        maxValue = minValue + 1;
-      }
-  
+
       const colorScale = d3
-        .scaleLinear<string>()
-        .domain([minValue, maxValue])
-        .range(["#e0e0e0", "#006400"]); // Від світло-сірого до темно-зеленого
-  
+        .scaleLinear<string, number>()
+        .domain([d3.min(filledData) || 0, d3.max(filledData) || 1])
+        .range(["#ddd", "green"]);
+
       const svg = d3
         .select(heatMapRef.current)
         .append("svg")
         .attr("width", width)
         .attr("height", height);
-  
+
       // Додаємо мітки днів тижня
-      svg
-        .selectAll("text")
+      svg.selectAll("text")
         .data(dayLabels)
         .join("text")
         .attr("x", 5)
@@ -90,8 +75,8 @@ const filledData = Array.from({ length: totalCells }, (_, i) => {
         .attr("dy", "0.35em")
         .attr("font-size", "12px")
         .attr("text-anchor", "start")
-        .text((d) => d);
-  
+        .text(d => d);
+
       svg
         .append("g")
         .attr("transform", "translate(40, 0)")
@@ -102,13 +87,22 @@ const filledData = Array.from({ length: totalCells }, (_, i) => {
         .attr("height", boxSize - 2)
         .attr("x", (_, index) => boxSize * Math.floor(index / rows)) // Колонки йдуть по X
         .attr("y", (_, index) => boxSize * (index % rows)) // Рядки йдуть по Y
-        .attr("fill", (d) => colorScale(d))
-        .attr("stroke", "#999");
+        .attr("fill", colorScale)
+        .attr("stroke", "#999")
+        .on("mouseover", (event, datum) => {
+          console.log(datum)
+
+
+        })
+        .on("mouseout", () => {
+
+        })
     }
   }, [filledData, containerWidth]);
-  
 
-  return <div ref={heatMapRef} style={{ width: "100%", height: "auto", overflowX: "hidden" }}></div>;
+  return <>
+    <div ref={heatMapRef} style={{ width: "100%", height: "auto", overflowX: "hidden" }}></div>;
+  </>
 }
 
 export default HeatMap;
