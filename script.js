@@ -6,6 +6,8 @@ window.addEventListener("load", () => {
   playerImage.src = "shadow_dog.png";
   const boomImage = new Image();
   boomImage.src = "boom.png";
+  const groundImage = new Image();
+  groundImage.src = "groung.jpeg";
   const boomFrames = 5;
   const boomStagger = 4;
   let explosions = [];
@@ -249,9 +251,25 @@ window.addEventListener("load", () => {
 
   canvas.addEventListener("pointerdown", onPointerDown);
 
+  function drawBackground() {
+    if (!groundImage.complete || !groundImage.naturalWidth) return;
+    ctx.drawImage(
+      groundImage,
+      0,
+      0,
+      groundImage.naturalWidth,
+      groundImage.naturalHeight,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+  }
+
   function animate() {
     window.requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBackground();
     for (const c of characters) {
       updateCharacter(c);
       drawCharacter(c);
