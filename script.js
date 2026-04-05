@@ -4,6 +4,11 @@ window.addEventListener("load", () => {
 
   const playerImage = new Image();
   playerImage.src = "shadow_dog.png";
+  const boomImage = new Image();
+  boomImage.src = "boom.png";
+  const boomFrames = 5;
+  const boomStagger = 4;
+  let explosions = [];
   const spriteWidth = 575;
   const spriteHeight = 523;
   const runRow = 3;
@@ -12,7 +17,7 @@ window.addEventListener("load", () => {
   const characterCount = 3;
   const respawnDelayMin = 2000;
   const respawnDelayMax = 4500;
-  const baseSpeed = 5;
+  const baseSpeed = 2;
   const speedJitter = 2.5;
 
   let gameFrame = 0;
@@ -173,6 +178,58 @@ window.addEventListener("load", () => {
     }, delay);
   }
 
+  function spawnExplosion(c) {
+    const destW = Math.max(c.w * 1.2, 90);
+    const nw = boomImage.naturalWidth || 1000;
+    const nh = boomImage.naturalHeight || 179;
+    const srcFrameW = nw / boomFrames;
+    const destH = (nh / srcFrameW) * destW;
+    explosions.push({
+      frame: 0,
+      cx: c.x + c.w * 0.5,
+      cy: c.y + c.h * 0.5,
+      destW,
+      destH,
+      age: 0,
+    });
+  }
+
+  function updateExplosions() {
+    for (let i = explosions.length - 1; i >= 0; i--) {
+      const e = explosions[i];
+      e.age++;
+      if (e.age % boomStagger === 0) {
+        e.frame++;
+        if (e.frame >= boomFrames) {
+          explosions.splice(i, 1);
+        }
+      }
+    }
+  }
+
+  function drawExplosions() {
+    if (!boomImage.complete || !boomImage.naturalWidth) return;
+    const nw = boomImage.naturalWidth;
+    const nh = boomImage.naturalHeight;
+    const srcFrameW = nw / boomFrames;
+    for (const e of explosions) {
+      if (e.frame >= boomFrames) continue;
+      const dx = e.cx - e.destW * 0.5;
+      const dy = e.cy - e.destH * 0.5;
+      ctx.drawImage(
+        boomImage,
+        e.frame * srcFrameW,
+        0,
+        srcFrameW,
+        nh,
+        dx,
+        dy,
+        e.destW,
+        e.destH
+      );
+    }
+  }
+
   function onPointerDown(e) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -182,6 +239,7 @@ window.addEventListener("load", () => {
     for (let i = characters.length - 1; i >= 0; i--) {
       const c = characters[i];
       if (hitTest(px, py, c)) {
+        spawnExplosion(c);
         c.alive = false;
         scheduleRespawn(i);
         break;
@@ -198,6 +256,8 @@ window.addEventListener("load", () => {
       updateCharacter(c);
       drawCharacter(c);
     }
+    updateExplosions();
+    drawExplosions();
     gameFrame++;
   }
 
