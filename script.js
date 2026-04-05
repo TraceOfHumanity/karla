@@ -19,7 +19,7 @@ window.addEventListener("load", () => {
   const characterCount = 3;
   const respawnDelayMin = 2000;
   const respawnDelayMax = 4500;
-  const baseSpeed = 2;
+  const baseSpeed = 1;
   const speedJitter = 2.5;
 
   let gameFrame = 0;
@@ -95,8 +95,10 @@ window.addEventListener("load", () => {
       if (!c.alive) continue;
       c.w = w;
       c.h = h;
-      c.x = Math.min(Math.max(c.x, -c.w - 20), canvas.width + 20);
-      c.y = Math.min(Math.max(c.y, -c.h - 20), canvas.height + 20);
+      const padX = c.w * 2 + 20;
+      const padY = c.h * 2 + 20;
+      c.x = Math.min(Math.max(c.x, -padX), canvas.width + c.w + 20);
+      c.y = Math.min(Math.max(c.y, -padY), canvas.height + c.h + 20);
     }
   }
 
@@ -106,18 +108,20 @@ window.addEventListener("load", () => {
     if (!c.alive) return;
     c.x += c.vx;
     c.y += c.vy;
-    if (c.x <= 0) {
-      c.x = 0;
+    const ox = c.w * 2;
+    const oy = c.h * 2;
+    if (c.x <= -ox) {
+      c.x = -ox;
       c.vx = Math.abs(c.vx);
-    } else if (c.x + c.w >= canvas.width) {
-      c.x = canvas.width - c.w;
+    } else if (c.x + c.w >= canvas.width + ox) {
+      c.x = canvas.width + ox - c.w;
       c.vx = -Math.abs(c.vx);
     }
-    if (c.y <= 0) {
-      c.y = 0;
+    if (c.y <= -oy) {
+      c.y = -oy;
       c.vy = Math.abs(c.vy);
-    } else if (c.y + c.h >= canvas.height) {
-      c.y = canvas.height - c.h;
+    } else if (c.y + c.h >= canvas.height + oy) {
+      c.y = canvas.height + oy - c.h;
       c.vy = -Math.abs(c.vy);
     }
     if (gameFrame % staggerFrames === 0) {
