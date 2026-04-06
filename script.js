@@ -125,7 +125,7 @@ window.addEventListener("load", () => {
 
   function syncFullscreenButton() {
     if (!fullscreenBtn) return;
-    fullscreenBtn.textContent = fullscreenActive() ? "Вийти" : "Повний екран";
+    fullscreenBtn.textContent = fullscreenActive() ? "Exit" : "Fullscreen";
   }
 
   async function toggleFullscreen() {
