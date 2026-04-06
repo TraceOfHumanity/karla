@@ -104,6 +104,68 @@ window.addEventListener("load", () => {
 
   window.addEventListener("resize", resizeCanvas);
 
+  const fullscreenBtn = document.getElementById("fullscreen-btn");
+
+  function fullscreenActive() {
+    return !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.msFullscreenElement
+    );
+  }
+
+  function fullscreenSupported() {
+    const el = document.documentElement;
+    return !!(
+      el.requestFullscreen ||
+      el.webkitRequestFullscreen ||
+      el.msRequestFullscreen
+    );
+  }
+
+  function syncFullscreenButton() {
+    if (!fullscreenBtn) return;
+    fullscreenBtn.textContent = fullscreenActive() ? "Вийти" : "Повний екран";
+  }
+
+  async function toggleFullscreen() {
+    try {
+      if (fullscreenActive()) {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen)
+          await document.webkitExitFullscreen();
+        else if (document.msExitFullscreen) await document.msExitFullscreen();
+      } else {
+        const el = document.documentElement;
+        if (el.requestFullscreen) await el.requestFullscreen();
+        else if (el.webkitRequestFullscreen)
+          await el.webkitRequestFullscreen();
+        else if (el.msRequestFullscreen) await el.msRequestFullscreen();
+      }
+    } catch (err) {}
+    syncFullscreenButton();
+  }
+
+  function onFullscreenChange() {
+    requestAnimationFrame(() => {
+      resizeCanvas();
+      syncFullscreenButton();
+    });
+  }
+
+  if (fullscreenBtn) {
+    if (!fullscreenSupported()) {
+      fullscreenBtn.hidden = true;
+    } else {
+      fullscreenBtn.addEventListener("click", toggleFullscreen);
+      syncFullscreenButton();
+    }
+  }
+
+  document.addEventListener("fullscreenchange", onFullscreenChange);
+  document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+  document.addEventListener("MSFullscreenChange", onFullscreenChange);
+
   function updateCharacter(c) {
     if (!c.alive) return;
     c.x += c.vx;

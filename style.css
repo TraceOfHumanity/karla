@@ -8,9 +8,31 @@ canvas {
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 0;
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
+}
 
+#fullscreen-btn {
+    position: fixed;
+    top: max(12px, env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+    z-index: 1;
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px 16px;
+    font: inherit;
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
 
+#fullscreen-btn:active {
+    background: rgba(0, 0, 0, 0.65);
 }
